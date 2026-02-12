@@ -374,21 +374,14 @@ def create_rope():
     cur.close()
     conn.close()
 
-    full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
+   full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
 
-    return f"""
-    <h3>Rope Created Successfully!</h3>
-    <p><strong>Rope ID:</strong> {rope_id}</p>
-    <p><strong>Rope Link:</strong></p>
-    <p>
-        <a href="{full_url}" target="_blank">
-            {full_url}
-        </a>
-    </p>
-    <p>Use this full link for the NFC tag.</p>
-    <br>
-    <a href="/admin">Create Another Rope</a>
-    """
+return render_template(
+    "rope_created.html",
+    rope_id=rope_id,
+    full_url=full_url
+)
+
 
 
 # ------------- INVALID URL --------------
