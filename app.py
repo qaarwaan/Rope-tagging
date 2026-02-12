@@ -106,7 +106,7 @@ def rope_details(rope_id):
     if not row:
         cur.close()
         conn.close()
-        return jsonify({"error": "Rope not found"}), 404
+        return "<h2>Rope not found</h2>", 404
 
     purchase_date = row[7]
     status = compute_status(rope_id, purchase_date)
@@ -114,17 +114,89 @@ def rope_details(rope_id):
     cur.close()
     conn.close()
 
-    return jsonify({
-        "rope_id": row[0],
-        "product_name": row[1],
-        "thickness": row[2],
-        "original_length": row[3],
-        "color": row[4],
-        "batch": row[5],
-        "manufacturing_date": str(row[6]),
-        "purchase_date": str(row[7]),
-        "status": status
-    })
+    # Status color logic
+    if status == "ACTIVE":
+        status_color = "green"
+    elif status == "INSPECTION DUE":
+        status_color = "orange"
+    else:
+        status_color = "red"
+
+    return f"""
+    <html>
+    <head>
+        <title>Rope {row[0]}</title>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #f5f5f5;
+                padding: 30px;
+            }}
+            .card {{
+                background: white;
+                padding: 25px;
+                border-radius: 10px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                max-width: 600px;
+                margin: auto;
+            }}
+            h1 {{
+                margin-top: 0;
+            }}
+            .status {{
+                padding: 8px 15px;
+                border-radius: 20px;
+                color: white;
+                display: inline-block;
+                background-color: {status_color};
+                font-weight: bold;
+            }}
+            .label {{
+                font-weight: bold;
+            }}
+            .row {{
+                margin-bottom: 10px;
+            }}
+            .buttons {{
+                margin-top: 20px;
+            }}
+            .btn {{
+                display: inline-block;
+                padding: 8px 12px;
+                background-color: #007BFF;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                margin-right: 10px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>Rope ID: {row[0]}</h1>
+
+            <div class="row"><span class="label">Product:</span> {row[1]}</div>
+            <div class="row"><span class="label">Thickness:</span> {row[2]}</div>
+            <div class="row"><span class="label">Original Length:</span> {row[3]}</div>
+            <div class="row"><span class="label">Color:</span> {row[4]}</div>
+            <div class="row"><span class="label">Batch:</span> {row[5]}</div>
+            <div class="row"><span class="label">Manufacturing Date:</span> {row[6]}</div>
+            <div class="row"><span class="label">Purchase Date:</span> {row[7]}</div>
+
+            <div class="row">
+                <span class="label">Status:</span>
+                <span class="status">{status}</span>
+            </div>
+
+            <div class="buttons">
+                <a class="btn" href="/rope/{row[0]}/inspections">Inspection Log</a>
+                <a class="btn" href="/rope/{row[0]}/falls">Fall Records</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
 
 # ---------------- ADMIN PANEL ----------------
 
