@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, render_template
 import psycopg2
 import os
 import bcrypt
@@ -6,6 +6,8 @@ import random
 import string
 from datetime import datetime, timedelta
 from functools import wraps
+
+
 
 app = Flask(__name__)
 
@@ -142,62 +144,21 @@ def rope_details(rope_id):
     if not row:
         cur.close()
         conn.close()
-        return "<h2>Rope not found</h2>", 404
+        return "Rope not found", 404
 
-    purchase_date = row[7]
-    status = compute_status(rope_id, purchase_date)
+    rope = {
+        "rope_id": row[0],
+        "product_name": row[1],
+        "thickness": row[2],
+        "original_length": row[3],
+        "color": row[4],
+        "batch": row[5],
+        "manufacturing_date": row[6],
+        "purchase_date": row[7],
+    }
 
-    # Fetch image for product variant
-    cur.execute("""
-        SELECT image_url FROM product_variants
-        WHERE product_name = %s AND color = %s
-        LIMIT 1
-    """, (row[1], row[4]))
+    status = compute_status(rope_id, rope["purchase_date"])
 
-    variant = cur.fetchone()
-
-    if variant:
-        image_html = f"""
-        <div style="
-            width:100%;
-            height:220px;
-            overflow:hidden;
-            border-radius:10px;
-            margin-bottom:15px;
-            background:#f0f0f0;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-        ">
-            <img src="{variant[0]}" 
-                 style="
-                    width:100%;
-                    height:100%;
-                    object-fit:contain;
-                ">
-        </div>
-        """
-    else:
-        image_html = """
-        <div style="
-            width:100%;
-            height:220px;
-            background:#eee;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            border-radius:10px;
-            margin-bottom:15px;
-            color:#666;
-            font-weight:bold;">
-            Image Not Found
-        </div>
-        """
-
-    cur.close()
-    conn.close()
-
-    # Status color logic
     if status == "ACTIVE":
         status_color = "green"
     elif status == "INSPECTION DUE":
@@ -205,82 +166,26 @@ def rope_details(rope_id):
     else:
         status_color = "red"
 
-    return f"""
-    <html>
-    <head>
-        <title>Rope {row[0]}</title>
-        <style>
-            body {{
-                font-family: Arial, sans-serif;
-                background-color: #f5f5f5;
-                padding: 30px;
-            }}
-            .card {{
-                background: white;
-                padding: 25px;
-                border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-                max-width: 600px;
-                margin: auto;
-            }}
-            h1 {{
-                margin-top: 0;
-            }}
-            .status {{
-                padding: 8px 15px;
-                border-radius: 20px;
-                color: white;
-                display: inline-block;
-                background-color: {status_color};
-                font-weight: bold;
-            }}
-            .label {{
-                font-weight: bold;
-            }}
-            .row {{
-                margin-bottom: 10px;
-            }}
-            .buttons {{
-                margin-top: 20px;
-            }}
-            .btn {{
-                display: inline-block;
-                padding: 8px 12px;
-                background-color: #007BFF;
-                color: white;
-                text-decoration: none;
-                border-radius: 5px;
-                margin-right: 10px;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="card">
-            {image_html}
+    cur.execute("""
+        SELECT image_url FROM product_variants
+        WHERE product_name = %s AND color = %s
+        LIMIT 1
+    """, (rope["product_name"], rope["color"]))
 
-            <h1>Rope ID: {row[0]}</h1>
+    variant = cur.fetchone()
+    image_url = variant[0] if variant else None
 
-            <div class="row"><span class="label">Product:</span> {row[1]}</div>
-            <div class="row"><span class="label">Thickness:</span> {row[2]}</div>
-            <div class="row"><span class="label">Original Length:</span> {row[3]}</div>
-            <div class="row"><span class="label">Color:</span> {row[4]}</div>
-            <div class="row"><span class="label">Batch:</span> {row[5]}</div>
-            <div class="row"><span class="label">Manufacturing Date:</span> {row[6]}</div>
-            <div class="row"><span class="label">Purchase Date:</span> {row[7]}</div>
+    cur.close()
+    conn.close()
 
-            <div class="row">
-                <span class="label">Status:</span>
-                <span class="status">{status}</span>
-            </div>
+    return render_template(
+        "overview.html",
+        rope=rope,
+        status=status,
+        status_color=status_color,
+        image_url=image_url
+    )
 
-            <div class="buttons">
-                <a class="btn" href="/rope/{row[0]}/inspections">Inspection Log</a>
-                <a class="btn" href="/rope/{row[0]}/falls">Fall Records</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
 
 
 
