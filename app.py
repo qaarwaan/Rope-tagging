@@ -89,6 +89,50 @@ def compute_status(rope_id, purchase_date):
     else:
         return "ACTIVE"
 
+
+# ---------------- LANDING PAGE ----------------
+
+@app.route("/")
+def landing_page():
+    return """
+    <html>
+    <head>
+        <title>Rope Tracking</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f5f5f5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+            }
+            .card {
+                background: white;
+                padding: 40px;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            h1 {
+                margin-bottom: 10px;
+            }
+            p {
+                color: #555;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>Rope Tracking System</h1>
+            <p>Please scan your NFC tag to view rope details.</p>
+        </div>
+    </body>
+    </html>
+    """
+
+
 # ---------------- PUBLIC ROUTE ----------------
 
 @app.route("/rope/<rope_id>")
@@ -517,6 +561,21 @@ return f"""
 <br>
 <a href="/admin">Create Another Rope</a>
 """
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return """
+    <html>
+    <body style="font-family:Arial;text-align:center;padding:50px;">
+        <h2>Page Not Found</h2>
+        <p>The link you accessed is invalid.</p>
+        <a href="/">Go to Home</a>
+    </body>
+    </html>
+    """, 404
+
+
+
 
 if __name__ == "__main__":
     app.run()
