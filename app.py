@@ -158,14 +158,30 @@ def rope_details(rope_id):
 
     if variant:
         image_html = f"""
-        <img src="{variant[0]}" 
-             style="width:100%; border-radius:10px; margin-bottom:15px;">
+        <div style="
+            width:100%;
+            height:220px;
+            overflow:hidden;
+            border-radius:10px;
+            margin-bottom:15px;
+            background:#f0f0f0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        ">
+            <img src="{variant[0]}" 
+                 style="
+                    width:100%;
+                    height:100%;
+                    object-fit:contain;
+                ">
+        </div>
         """
     else:
         image_html = """
         <div style="
             width:100%;
-            height:200px;
+            height:220px;
             background:#eee;
             display:flex;
             align-items:center;
@@ -265,6 +281,7 @@ def rope_details(rope_id):
     </body>
     </html>
     """
+
 
 
 @app.route("/rope/<rope_id>/inspections")
