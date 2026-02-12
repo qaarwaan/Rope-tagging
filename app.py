@@ -374,13 +374,13 @@ def create_rope():
     cur.close()
     conn.close()
 
-   full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
+    full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
 
-return render_template(
-    "rope_created.html",
-    rope_id=rope_id,
-    full_url=full_url
-)
+    return render_template(
+        "rope_created.html",
+        rope_id=rope_id,
+        full_url=full_url
+    )
 
 
 
