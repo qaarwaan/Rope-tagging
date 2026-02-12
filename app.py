@@ -335,20 +335,8 @@ def add_fall(rope_id):
 @app.route("/admin")
 @requires_auth
 def admin_page():
-    return """
-    <h2>Create New Rope</h2>
-    <form method="POST" action="/admin/create">
-        Product Name: <input name="product_name"><br><br>
-        Thickness: <input name="thickness"><br><br>
-        Original Length: <input name="original_length"><br><br>
-        Color: <input name="color"><br><br>
-        Batch: <input name="batch"><br><br>
-        Manufacturing Date: <input type="date" name="manufacturing_date"><br><br>
-        Purchase Date: <input type="date" name="purchase_date"><br><br>
-        Customer Password: <input type="password" name="customer_password"><br><br>
-        <button type="submit">Create Rope</button>
-    </form>
-    """
+    return render_template("admin.html")
+
 
 @app.route("/admin/create", methods=["POST"])
 @requires_auth
