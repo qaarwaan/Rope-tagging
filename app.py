@@ -1,22 +1,11 @@
 from flask import Flask, jsonify
+import json
 
 app = Flask(__name__)
 
-# Temporary in-memory rope database
-ropes = {
-    "1001": {
-        "color": "Red",
-        "length": "50m",
-        "thickness": "10mm",
-        "batch": "BATCH-A1"
-    },
-    "1002": {
-        "color": "Blue",
-        "length": "30m",
-        "thickness": "8mm",
-        "batch": "BATCH-B7"
-    }
-}
+def load_ropes():
+    with open("ropes.json", "r") as file:
+        return json.load(file)
 
 @app.route("/")
 def home():
@@ -24,8 +13,9 @@ def home():
 
 @app.route("/rope/<rope_id>")
 def rope(rope_id):
+    ropes = load_ropes()
     rope_data = ropes.get(rope_id)
-    
+
     if rope_data:
         return jsonify({
             "rope_id": rope_id,
