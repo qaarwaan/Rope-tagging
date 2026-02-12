@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Rope Created{% endblock %}
+
+{% block content %}
+
+<h2>Rope Created Successfully!</h2>
+
+<p><strong>Rope ID:</strong> {{ rope_id }}</p>
+
+<p><strong>Rope Link:</strong></p>
+
+<p>
+    <a class="btn" href="{{ full_url }}" target="_blank">
+        Open Rope Page
+    </a>
+</p>
+
+<p style="margin-top:15px;">
+    Use this full link for the NFC tag.
+</p>
+
+<br>
+<a class="btn" href="/admin">Create Another Rope</a>
+
+{% endblock %}
