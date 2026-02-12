@@ -308,9 +308,8 @@ def add_fall(rope_id):
         fall_date = datetime.strptime(fall_date_str, "%Y-%m-%d").date()
         today = datetime.today().date()
 
-        # 1️⃣ Prevent future date
         if fall_date > today:
-            return "<h3>Error: Fall date cannot be in the future.</h3><a href=''>Go Back</a>"
+            return "Fall date cannot be in the future", 400
 
         conn = get_connection()
         cur = conn.cursor()
@@ -324,30 +323,9 @@ def add_fall(rope_id):
         cur.close()
         conn.close()
 
-        return f"""
-        <h3>Fall Record Added</h3>
-        <a href="/rope/{rope_id}/falls">Back to Fall Records</a>
-        """
+        return redirect(f"/rope/{rope_id}/falls")
 
-    return f"""
-    <html>
-    <body style="font-family:Arial;padding:30px;">
-        <h2>Add Fall Record - {rope_id}</h2>
-        <form method="POST">
-            Date: <input type="date" name="fall_date" required><br><br>
-            Type:
-            <select name="fall_type">
-                <option value="major">Major</option>
-                <option value="minor">Minor</option>
-            </select><br><br>
-            Comment: <input type="text" name="comment"><br><br>
-            <button type="submit">Submit</button>
-        </form>
-        <br>
-        <a href="/rope/{rope_id}/falls">← Back</a>
-    </body>
-    </html>
-    """
+    return render_template("add_fall.html", rope_id=rope_id)
 
 
 
