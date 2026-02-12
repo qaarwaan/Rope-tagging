@@ -555,6 +555,22 @@ def create_rope():
     """
 
 
+# ------------- INVALID URL --------------
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return """
+    <html>
+    <body style="font-family:Arial;text-align:center;padding:50px;">
+        <h2>404 - Page Not Found</h2>
+        <p>The link you accessed is invalid.</p>
+        <a href="/">Go to Home</a>
+    </body>
+    </html>
+    """, 404
+
+
+
 if __name__ == "__main__":
     app.run()
 
