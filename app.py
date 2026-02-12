@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response, render_template
+from flask import Flask, jsonify, request, Response, render_template, redirect
 import psycopg2
 import os
 import bcrypt
@@ -6,7 +6,7 @@ import random
 import string
 from datetime import datetime, timedelta
 from functools import wraps
-from flask import redirect
+
 
 
 
