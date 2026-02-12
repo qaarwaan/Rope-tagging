@@ -562,6 +562,13 @@ return f"""
 <a href="/admin">Create Another Rope</a>
 """
 
+
+
+
+if __name__ == "__main__":
+    app.run()
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return """
@@ -576,6 +583,3 @@ def page_not_found(e):
 
 
 
-
-if __name__ == "__main__":
-    app.run()
