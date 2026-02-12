@@ -147,6 +147,37 @@ def rope_details(rope_id):
     purchase_date = row[7]
     status = compute_status(rope_id, purchase_date)
 
+    # Fetch image for product variant
+    cur.execute("""
+        SELECT image_url FROM product_variants
+        WHERE product_name = %s AND color = %s
+        LIMIT 1
+    """, (row[1], row[4]))
+
+    variant = cur.fetchone()
+
+    if variant:
+        image_html = f"""
+        <img src="{variant[0]}" 
+             style="width:100%; border-radius:10px; margin-bottom:15px;">
+        """
+    else:
+        image_html = """
+        <div style="
+            width:100%;
+            height:200px;
+            background:#eee;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:10px;
+            margin-bottom:15px;
+            color:#666;
+            font-weight:bold;">
+            Image Not Found
+        </div>
+        """
+
     cur.close()
     conn.close()
 
@@ -209,6 +240,8 @@ def rope_details(rope_id):
     </head>
     <body>
         <div class="card">
+            {image_html}
+
             <h1>Rope ID: {row[0]}</h1>
 
             <div class="row"><span class="label">Product:</span> {row[1]}</div>
@@ -232,6 +265,7 @@ def rope_details(rope_id):
     </body>
     </html>
     """
+
 
 @app.route("/rope/<rope_id>/inspections")
 def inspection_list(rope_id):
