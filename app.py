@@ -282,17 +282,34 @@ def inspection_list(rope_id):
 @requires_auth
 def add_inspection(rope_id):
     if request.method == "POST":
+        inspection_date_str = request.form["inspection_date"]
+        comment = request.form["comment"]
+
+        inspection_date = datetime.strptime(inspection_date_str, "%Y-%m-%d").date()
+        today = datetime.today().date()
+
+        # 1️⃣ Prevent future date
+        if inspection_date > today:
+            return "<h3>Error: Inspection date cannot be in the future.</h3><a href=''>Go Back</a>"
+
         conn = get_connection()
         cur = conn.cursor()
+
+        # 2️⃣ Prevent duplicate inspection on same date
+        cur.execute("""
+            SELECT 1 FROM inspection_logs
+            WHERE rope_id = %s AND inspection_date = %s
+        """, (rope_id, inspection_date))
+
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return "<h3>Error: Inspection already recorded for this date.</h3><a href=''>Go Back</a>"
 
         cur.execute("""
             INSERT INTO inspection_logs (rope_id, inspection_date, comment)
             VALUES (%s, %s, %s)
-        """, (
-            rope_id,
-            request.form["inspection_date"],
-            request.form["comment"]
-        ))
+        """, (rope_id, inspection_date, comment))
 
         conn.commit()
         cur.close()
@@ -317,6 +334,7 @@ def add_inspection(rope_id):
     </body>
     </html>
     """
+
 
 
 @app.route("/rope/<rope_id>/falls")
@@ -377,18 +395,24 @@ def fall_list(rope_id):
 @requires_auth
 def add_fall(rope_id):
     if request.method == "POST":
+        fall_date_str = request.form["fall_date"]
+        fall_type = request.form["fall_type"]
+        comment = request.form["comment"]
+
+        fall_date = datetime.strptime(fall_date_str, "%Y-%m-%d").date()
+        today = datetime.today().date()
+
+        # 1️⃣ Prevent future date
+        if fall_date > today:
+            return "<h3>Error: Fall date cannot be in the future.</h3><a href=''>Go Back</a>"
+
         conn = get_connection()
         cur = conn.cursor()
 
         cur.execute("""
             INSERT INTO fall_logs (rope_id, fall_date, fall_type, comment)
             VALUES (%s, %s, %s, %s)
-        """, (
-            rope_id,
-            request.form["fall_date"],
-            request.form["fall_type"],
-            request.form["comment"]
-        ))
+        """, (rope_id, fall_date, fall_type, comment))
 
         conn.commit()
         cur.close()
@@ -418,6 +442,7 @@ def add_fall(rope_id):
     </body>
     </html>
     """
+
 
 
 
