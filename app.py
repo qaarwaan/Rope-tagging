@@ -6,6 +6,7 @@ import random
 import string
 from datetime import datetime, timedelta
 from functools import wraps
+from flask import redirect
 
 
 
@@ -231,14 +232,12 @@ def add_inspection(rope_id):
         inspection_date = datetime.strptime(inspection_date_str, "%Y-%m-%d").date()
         today = datetime.today().date()
 
-        # 1️⃣ Prevent future date
         if inspection_date > today:
-            return "<h3>Error: Inspection date cannot be in the future.</h3><a href=''>Go Back</a>"
+            return "Inspection date cannot be in the future", 400
 
         conn = get_connection()
         cur = conn.cursor()
 
-        # 2️⃣ Prevent duplicate inspection on same date
         cur.execute("""
             SELECT 1 FROM inspection_logs
             WHERE rope_id = %s AND inspection_date = %s
@@ -247,7 +246,7 @@ def add_inspection(rope_id):
         if cur.fetchone():
             cur.close()
             conn.close()
-            return "<h3>Error: Inspection already recorded for this date.</h3><a href=''>Go Back</a>"
+            return "Inspection already recorded for this date", 400
 
         cur.execute("""
             INSERT INTO inspection_logs (rope_id, inspection_date, comment)
@@ -258,25 +257,9 @@ def add_inspection(rope_id):
         cur.close()
         conn.close()
 
-        return f"""
-        <h3>Inspection Added Successfully</h3>
-        <a href="/rope/{rope_id}/inspections">Back to Inspection Log</a>
-        """
+        return redirect(f"/rope/{rope_id}/inspections")
 
-    return f"""
-    <html>
-    <body style="font-family:Arial;padding:30px;">
-        <h2>Add Inspection - {rope_id}</h2>
-        <form method="POST">
-            Date: <input type="date" name="inspection_date" required><br><br>
-            Comment: <input type="text" name="comment"><br><br>
-            <button type="submit">Submit</button>
-        </form>
-        <br>
-        <a href="/rope/{rope_id}/inspections">← Back</a>
-    </body>
-    </html>
-    """
+    return render_template("add_inspection.html", rope_id=rope_id)
 
 
 
