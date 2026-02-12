@@ -292,46 +292,26 @@ def fall_list(rope_id):
         ORDER BY fall_date DESC
     """, (rope_id,))
 
-    falls = cur.fetchall()
+    rows = cur.fetchall()
+
+    falls = [
+        {
+            "fall_date": r[0],
+            "fall_type": r[1],
+            "comment": r[2]
+        }
+        for r in rows
+    ]
 
     cur.close()
     conn.close()
 
-    rows_html = ""
-    for f in falls:
-        rows_html += f"""
-        <tr>
-            <td>{f[0]}</td>
-            <td>{f[1]}</td>
-            <td>{f[2] or ""}</td>
-        </tr>
-        """
+    return render_template(
+        "falls.html",
+        rope_id=rope_id,
+        falls=falls
+    )
 
-    return f"""
-    <html>
-    <head>
-        <title>Fall Records</title>
-    </head>
-    <body style="font-family:Arial;padding:30px;background:#f5f5f5;">
-        <div style="background:white;padding:20px;border-radius:10px;max-width:700px;margin:auto;">
-            <h2>Fall Records - {rope_id}</h2>
-            <table border="1" width="100%" cellpadding="8">
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Comment</th>
-                </tr>
-                {rows_html}
-            </table>
-
-            <br>
-            <a href="/rope/{rope_id}/falls/add-new">Add Fall Record</a>
-            <br><br>
-            <a href="/rope/{rope_id}">← Back to Overview</a>
-        </div>
-    </body>
-    </html>
-    """
 
 
 @app.route("/rope/<rope_id>/falls/add-new", methods=["GET", "POST"])
