@@ -201,74 +201,25 @@ def inspection_list(rope_id):
         ORDER BY inspection_date DESC
     """, (rope_id,))
 
-    inspections = cur.fetchall()
+    rows = cur.fetchall()
+
+    inspections = [
+        {
+            "inspection_date": r[0],
+            "comment": r[1]
+        }
+        for r in rows
+    ]
 
     cur.close()
     conn.close()
 
-    rows_html = ""
-    for i in inspections:
-        rows_html += f"""
-        <tr>
-            <td>{i[0]}</td>
-            <td>{i[1] or ""}</td>
-        </tr>
-        """
+    return render_template(
+        "inspections.html",
+        rope_id=rope_id,
+        inspections=inspections
+    )
 
-    return f"""
-    <html>
-    <head>
-        <title>Inspection Log</title>
-        <style>
-            body {{ font-family: Arial; padding: 30px; background:#f5f5f5; }}
-            .card {{
-                background:white;
-                padding:20px;
-                border-radius:10px;
-                max-width:700px;
-                margin:auto;
-                box-shadow:0 4px 10px rgba(0,0,0,0.1);
-            }}
-            table {{
-                width:100%;
-                border-collapse:collapse;
-                margin-top:15px;
-            }}
-            th, td {{
-                border:1px solid #ddd;
-                padding:8px;
-                text-align:left;
-            }}
-            th {{ background:#f0f0f0; }}
-            .btn {{
-                display:inline-block;
-                padding:8px 12px;
-                background:#007BFF;
-                color:white;
-                text-decoration:none;
-                border-radius:5px;
-                margin-top:15px;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="card">
-            <h2>Inspection Log - {rope_id}</h2>
-            <table>
-                <tr>
-                    <th>Date</th>
-                    <th>Comment</th>
-                </tr>
-                {rows_html}
-            </table>
-
-            <a class="btn" href="/rope/{rope_id}/inspections/add-new">Add Inspection</a>
-            <br><br>
-            <a href="/rope/{rope_id}">← Back to Overview</a>
-        </div>
-    </body>
-    </html>
-    """
 
 @app.route("/rope/<rope_id>/inspections/add-new", methods=["GET", "POST"])
 @requires_auth
