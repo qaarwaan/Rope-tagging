@@ -10,17 +10,32 @@
 
 <p><strong>Rope Link:</strong></p>
 
-<p>
-    <a class="btn" href="{{ full_url }}" target="_blank">
-        Open Rope Page
-    </a>
-</p>
+<div style="margin-bottom:15px;">
+    <input 
+        type="text" 
+        value="{{ full_url }}" 
+        id="ropeLink" 
+        readonly
+        style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+</div>
 
-<p style="margin-top:15px;">
-    Use this full link for the NFC tag.
-</p>
+<button class="btn" onclick="copyLink()">Copy Link</button>
+<a class="btn" href="{{ full_url }}" target="_blank">Open Rope Page</a>
 
-<br>
+<p id="copyStatus" style="margin-top:10px; color:green; font-weight:bold;"></p>
+
+<br><br>
 <a class="btn" href="/admin">Create Another Rope</a>
+
+<script>
+function copyLink() {
+    var copyText = document.getElementById("ropeLink");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value);
+
+    document.getElementById("copyStatus").innerText = "Link Copied!";
+}
+</script>
 
 {% endblock %}
