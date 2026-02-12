@@ -9,9 +9,12 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 def get_connection():
     return psycopg2.connect(DATABASE_URL)
 
+
+
 @app.route("/")
 def home():
-    return "Rope Tagging System is Live (DB Connected)"
+    return str(DATABASE_URL)
+
 
 @app.route("/rope/<rope_id>")
 def rope(rope_id):
