@@ -502,12 +502,21 @@ def create_rope():
     cur.close()
     conn.close()
 
-    return f"""
-    <h3>Rope Created Successfully!</h3>
-    <p><strong>Rope ID:</strong> {rope_id}</p>
-    <p>Share this ID in the NFC tag.</p>
-    <a href="/admin">Create Another Rope</a>
-    """
+ full_url = request.host_url.rstrip("/") + f"/rope/{rope_id}"
+
+return f"""
+<h3>Rope Created Successfully!</h3>
+<p><strong>Rope ID:</strong> {rope_id}</p>
+<p><strong>Rope Link:</strong></p>
+<p>
+    <a href="{full_url}" target="_blank">
+        {full_url}
+    </a>
+</p>
+<p>Use this full link for the NFC tag.</p>
+<br>
+<a href="/admin">Create Another Rope</a>
+"""
 
 if __name__ == "__main__":
     app.run()
