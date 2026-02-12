@@ -1,0 +1,14 @@
+{
+  "1001": {
+    "color": "Red",
+    "length": "50m",
+    "thickness": "10mm",
+    "batch": "BATCH-A1"
+  },
+  "1002": {
+    "color": "Blue",
+    "length": "30m",
+    "thickness": "8mm",
+    "batch": "BATCH-B7"
+  }
+}
