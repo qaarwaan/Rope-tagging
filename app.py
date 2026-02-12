@@ -197,6 +197,229 @@ def rope_details(rope_id):
     </html>
     """
 
+@app.route("/rope/<rope_id>/inspections")
+def inspection_list(rope_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT inspection_date, comment
+        FROM inspection_logs
+        WHERE rope_id = %s
+        ORDER BY inspection_date DESC
+    """, (rope_id,))
+
+    inspections = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    rows_html = ""
+    for i in inspections:
+        rows_html += f"""
+        <tr>
+            <td>{i[0]}</td>
+            <td>{i[1] or ""}</td>
+        </tr>
+        """
+
+    return f"""
+    <html>
+    <head>
+        <title>Inspection Log</title>
+        <style>
+            body {{ font-family: Arial; padding: 30px; background:#f5f5f5; }}
+            .card {{
+                background:white;
+                padding:20px;
+                border-radius:10px;
+                max-width:700px;
+                margin:auto;
+                box-shadow:0 4px 10px rgba(0,0,0,0.1);
+            }}
+            table {{
+                width:100%;
+                border-collapse:collapse;
+                margin-top:15px;
+            }}
+            th, td {{
+                border:1px solid #ddd;
+                padding:8px;
+                text-align:left;
+            }}
+            th {{ background:#f0f0f0; }}
+            .btn {{
+                display:inline-block;
+                padding:8px 12px;
+                background:#007BFF;
+                color:white;
+                text-decoration:none;
+                border-radius:5px;
+                margin-top:15px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h2>Inspection Log - {rope_id}</h2>
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>Comment</th>
+                </tr>
+                {rows_html}
+            </table>
+
+            <a class="btn" href="/rope/{rope_id}/inspections/add-new">Add Inspection</a>
+            <br><br>
+            <a href="/rope/{rope_id}">← Back to Overview</a>
+        </div>
+    </body>
+    </html>
+    """
+
+@app.route("/rope/<rope_id>/inspections/add-new", methods=["GET", "POST"])
+@requires_auth
+def add_inspection(rope_id):
+    if request.method == "POST":
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            INSERT INTO inspection_logs (rope_id, inspection_date, comment)
+            VALUES (%s, %s, %s)
+        """, (
+            rope_id,
+            request.form["inspection_date"],
+            request.form["comment"]
+        ))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return f"""
+        <h3>Inspection Added Successfully</h3>
+        <a href="/rope/{rope_id}/inspections">Back to Inspection Log</a>
+        """
+
+    return f"""
+    <html>
+    <body style="font-family:Arial;padding:30px;">
+        <h2>Add Inspection - {rope_id}</h2>
+        <form method="POST">
+            Date: <input type="date" name="inspection_date" required><br><br>
+            Comment: <input type="text" name="comment"><br><br>
+            <button type="submit">Submit</button>
+        </form>
+        <br>
+        <a href="/rope/{rope_id}/inspections">← Back</a>
+    </body>
+    </html>
+    """
+
+
+@app.route("/rope/<rope_id>/falls")
+def fall_list(rope_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT fall_date, fall_type, comment
+        FROM fall_logs
+        WHERE rope_id = %s
+        ORDER BY fall_date DESC
+    """, (rope_id,))
+
+    falls = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    rows_html = ""
+    for f in falls:
+        rows_html += f"""
+        <tr>
+            <td>{f[0]}</td>
+            <td>{f[1]}</td>
+            <td>{f[2] or ""}</td>
+        </tr>
+        """
+
+    return f"""
+    <html>
+    <head>
+        <title>Fall Records</title>
+    </head>
+    <body style="font-family:Arial;padding:30px;background:#f5f5f5;">
+        <div style="background:white;padding:20px;border-radius:10px;max-width:700px;margin:auto;">
+            <h2>Fall Records - {rope_id}</h2>
+            <table border="1" width="100%" cellpadding="8">
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Comment</th>
+                </tr>
+                {rows_html}
+            </table>
+
+            <br>
+            <a href="/rope/{rope_id}/falls/add-new">Add Fall Record</a>
+            <br><br>
+            <a href="/rope/{rope_id}">← Back to Overview</a>
+        </div>
+    </body>
+    </html>
+    """
+
+
+@app.route("/rope/<rope_id>/falls/add-new", methods=["GET", "POST"])
+@requires_auth
+def add_fall(rope_id):
+    if request.method == "POST":
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            INSERT INTO fall_logs (rope_id, fall_date, fall_type, comment)
+            VALUES (%s, %s, %s, %s)
+        """, (
+            rope_id,
+            request.form["fall_date"],
+            request.form["fall_type"],
+            request.form["comment"]
+        ))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return f"""
+        <h3>Fall Record Added</h3>
+        <a href="/rope/{rope_id}/falls">Back to Fall Records</a>
+        """
+
+    return f"""
+    <html>
+    <body style="font-family:Arial;padding:30px;">
+        <h2>Add Fall Record - {rope_id}</h2>
+        <form method="POST">
+            Date: <input type="date" name="fall_date" required><br><br>
+            Type:
+            <select name="fall_type">
+                <option value="major">Major</option>
+                <option value="minor">Minor</option>
+            </select><br><br>
+            Comment: <input type="text" name="comment"><br><br>
+            <button type="submit">Submit</button>
+        </form>
+        <br>
+        <a href="/rope/{rope_id}/falls">← Back</a>
+    </body>
+    </html>
+    """
+
+
 
 # ---------------- ADMIN PANEL ----------------
 
