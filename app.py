@@ -255,32 +255,47 @@ def inspection_list(rope_id):
 @requires_auth
 def add_inspection(rope_id):
     if request.method == "POST":
+
         inspection_date_str = request.form["inspection_date"]
-        comment = request.form["comment"]
+        inspected_by = request.form["inspected_by"]
+        verdict = request.form["verdict"]
+        comment = request.form.get("comment")
+        image = request.files.get("image")
 
         inspection_date = datetime.strptime(inspection_date_str, "%Y-%m-%d").date()
         today = datetime.today().date()
 
         if inspection_date > today:
-            return "Inspection date cannot be in the future", 400
+            return "Inspection date cannot be in the future."
+
+        image_url = None
+
+        if image and image.filename != "":
+            filename = f"{rope_id}_inspection_{datetime.now().timestamp()}.jpg"
+
+            supabase.storage.from_("rope-media").upload(
+                filename,
+                image.read(),
+                {"content-type": image.content_type}
+            )
+
+            image_url = supabase.storage.from_("rope-media").get_public_url(filename)
 
         conn = get_connection()
         cur = conn.cursor()
 
         cur.execute("""
-            SELECT 1 FROM inspection_logs
-            WHERE rope_id = %s AND inspection_date = %s
-        """, (rope_id, inspection_date))
-
-        if cur.fetchone():
-            cur.close()
-            conn.close()
-            return "Inspection already recorded for this date", 400
-
-        cur.execute("""
-            INSERT INTO inspection_logs (rope_id, inspection_date, comment)
-            VALUES (%s, %s, %s)
-        """, (rope_id, inspection_date, comment))
+            INSERT INTO inspection_logs
+            (rope_id, inspection_date, inspected_by, verdict, comment, image_url)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            rope_id,
+            inspection_date,
+            inspected_by,
+            verdict,
+            comment,
+            image_url
+        ))
 
         conn.commit()
         cur.close()
@@ -289,7 +304,6 @@ def add_inspection(rope_id):
         return redirect(f"/rope/{rope_id}/inspections")
 
     return render_template("add_inspection.html", rope_id=rope_id)
-
 
 
 
