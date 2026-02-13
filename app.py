@@ -280,16 +280,7 @@ def fall_list(rope_id):
         ORDER BY fall_date ASC, fall_time ASC
     """, (rope_id,))
 
-    rows = cur.fetchall()
-
-    falls = [
-        {
-            "fall_date": r[0],
-            "fall_type": r[1],
-            "comment": r[2]
-        }
-        for r in rows
-    ]
+    falls = cur.fetchall()
 
     cur.close()
     conn.close()
@@ -300,12 +291,12 @@ def fall_list(rope_id):
         falls=falls
     )
 
-
-
 @app.route("/rope/<rope_id>/falls/add-new", methods=["GET", "POST"])
 @requires_auth
 def add_fall(rope_id):
+
     if request.method == "POST":
+
         fall_date_str = request.form["fall_date"]
         fall_time_str = request.form["fall_time"]
         recorded_by = request.form["recorded_by"]
@@ -317,9 +308,11 @@ def add_fall(rope_id):
 
         # Prevent future date
         if fall_date > today:
-            return "<h3>Error: Fall date cannot be in the future.</h3><a href=''>Go Back</a>"
+            return render_template(
+                "error.html",
+                message="Fall date cannot be in the future."
+            )
 
-        # Handle image upload
         image_url = None
         file = request.files.get("picture")
 
@@ -335,7 +328,8 @@ def add_fall(rope_id):
                 {"content-type": file.content_type}
             )
 
-            image_url = supabase.storage.from_("rope-media").get_public_url(file_name)
+            public_url = supabase.storage.from_("rope-media").get_public_url(file_name)
+            image_url = public_url
 
         conn = get_connection()
         cur = conn.cursor()
@@ -358,10 +352,7 @@ def add_fall(rope_id):
         cur.close()
         conn.close()
 
-        return f"""
-        <h3>Fall Record Added</h3>
-        <a href="/rope/{rope_id}/falls">Back to Fall Records</a>
-        """
+        return redirect(f"/rope/{rope_id}/falls")
 
     return render_template("add_fall.html", rope_id=rope_id)
 
