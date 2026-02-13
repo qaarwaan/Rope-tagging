@@ -8,15 +8,30 @@
 
 <table>
     <tr>
+        <th>SL</th>
         <th>Date</th>
+        <th>Time</th>
+        <th>Recorded By</th>
         <th>Type</th>
         <th>Comment</th>
+        <th>Picture</th>
     </tr>
+
     {% for fall in falls %}
     <tr>
+        <td>{{ loop.index }}</td>
         <td>{{ fall.fall_date }}</td>
+        <td>{{ fall.fall_time }}</td>
+        <td>{{ fall.recorded_by }}</td>
         <td>{{ fall.fall_type }}</td>
         <td>{{ fall.comment or "" }}</td>
+        <td>
+            {% if fall.image_url %}
+                <a href="{{ fall.image_url }}" target="_blank">View</a>
+            {% else %}
+                No Image
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </table>
