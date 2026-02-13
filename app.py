@@ -6,7 +6,7 @@ import random
 import string
 from datetime import datetime, timedelta
 from functools import wraps
-
+from supabase import create_client, Client
 
 
 
