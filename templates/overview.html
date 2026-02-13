@@ -25,10 +25,16 @@
 <p><strong>Purchase Date:</strong> {{ rope.purchase_date }}</p>
 
 <p>
-<strong>Status:</strong>
-<span class="status" style="background-color: {{ status_color }}">
-    {{ status }}
-</span>
+    <strong>Status:</strong>
+    <span class="status-pill 
+        {% if status == 'ACTIVE' %}status-active
+        {% elif status == 'INSPECTION DUE' %}status-due
+        {% elif status == 'DAMAGED' %}status-damaged
+        {% elif status == 'RETIRED' %}status-retired
+        {% endif %}
+    ">
+        {{ status }}
+    </span>
 </p>
 
 <br>
