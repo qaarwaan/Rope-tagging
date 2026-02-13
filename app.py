@@ -182,12 +182,14 @@ def rope_details(rope_id):
 
     status = compute_status(rope_id, rope["purchase_date"])
 
-    if status == "ACTIVE":
+       if status == "ACTIVE":
         status_color = "green"
     elif status == "INSPECTION DUE":
         status_color = "orange"
-    else:
+    elif status == "RETIRED":
         status_color = "red"
+    else:
+        status_color = "gray"
 
     cur.execute("""
         SELECT image_url FROM product_variants
@@ -218,27 +220,32 @@ def inspection_list(rope_id):
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT inspection_date, comment
+        SELECT inspection_date,
+               inspected_by,
+               verdict,
+               comment,
+               image_url
         FROM inspection_logs
         WHERE rope_id = %s
-        ORDER BY inspection_date DESC
+        ORDER BY inspection_date ASC
     """, (rope_id,))
 
     rows = cur.fetchall()
-
-    inspections = [
-        {
-            "inspection_date": r[0],
-            "comment": r[1]
-        }
-        for r in rows
-    ]
-
     cur.close()
     conn.close()
 
+    inspections = []
+    for r in rows:
+        inspections.append({
+            "inspection_date": r[0],
+            "inspected_by": r[1],
+            "verdict": r[2],
+            "comment": r[3],
+            "image_url": r[4]
+        })
+
     return render_template(
-        "inspections.html",
+        "inspection.html",
         rope_id=rope_id,
         inspections=inspections
     )
