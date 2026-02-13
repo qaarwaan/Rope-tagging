@@ -182,7 +182,7 @@ def rope_details(rope_id):
 
     status = compute_status(rope_id, rope["purchase_date"])
 
-       if status == "ACTIVE":
+    if status == "ACTIVE":
         status_color = "green"
     elif status == "INSPECTION DUE":
         status_color = "orange"
