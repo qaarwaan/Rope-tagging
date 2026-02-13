@@ -245,7 +245,7 @@ def inspection_list(rope_id):
         })
 
     return render_template(
-        "inspection.html",
+        "inspections.html",
         rope_id=rope_id,
         inspections=inspections
     )
