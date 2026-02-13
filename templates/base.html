@@ -1,99 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Rope Tracking{% endblock %}</title>
-
-    <!-- 🔥 THIS FIXES MOBILE ZOOM ISSUE -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Rope Tracking{% endblock %}</title>
 
     <style>
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #f4f6f8;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
+            padding: 20px;
         }
 
         .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 15px;
+            max-width: 900px;
+            margin: auto;
         }
 
         .card {
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
         }
 
-        h1, h2, h3 {
+        h1, h2 {
             margin-top: 0;
         }
 
         .btn {
             display: inline-block;
-            padding: 10px 14px;
-            background: #007BFF;
+            padding: 10px 16px;
+            background-color: #007BFF;
             color: white;
             text-decoration: none;
             border-radius: 6px;
-            margin: 6px 4px 6px 0;
             font-size: 14px;
+            margin-right: 8px;
+            margin-top: 8px;
         }
 
         .btn:hover {
-            opacity: 0.9;
+            background-color: #0056b3;
+        }
+
+        /* Status Badge */
+        .status {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+        }
+
+        .status-active {
+            background-color: #28a745;
+        }
+
+        .status-due {
+            background-color: #ff9800;
+        }
+
+        .status-damaged {
+            background-color: #dc3545;
+        }
+
+        .status-retired {
+            background-color: #6c757d;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
-            font-size: 14px;
         }
 
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
             text-align: left;
-        }
-
-        th {
-            background: #f0f0f0;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            color: white;
-            font-weight: bold;
             font-size: 14px;
         }
 
-        .green { background: #28a745; }
-        .orange { background: #ff9800; }
-        .red { background: #dc3545; }
-        .dark { background: #343a40; }
-
-        img.responsive-img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
+        th {
+            background-color: #f7f7f7;
         }
 
-        /* 📱 Make tables scrollable on small screens */
-        .table-wrapper {
-            overflow-x: auto;
+        img {
+            max-width: 120px;
+            border-radius: 6px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin-right: 0;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            img {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="card">
-            {% block content %}{% endblock %}
-        </div>
-    </div>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
 </body>
 </html>
