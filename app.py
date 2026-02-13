@@ -7,7 +7,7 @@ import string
 from datetime import datetime, timedelta
 from functools import wraps
 from supabase import create_client, Client
-
+from psycopg2.extras import RealDictCursor
 
 
 app = Flask(__name__)
@@ -268,10 +268,11 @@ def add_inspection(rope_id):
 
 
 
+
 @app.route("/rope/<rope_id>/falls")
 def fall_list(rope_id):
     conn = get_connection()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
 
     cur.execute("""
         SELECT fall_date, fall_time, recorded_by, fall_type, comment, image_url
