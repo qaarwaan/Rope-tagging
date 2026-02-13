@@ -5,7 +5,7 @@
 {% block content %}
 
 <h2>Inspection Log - {{ rope_id }}</h2>
-
+<div class="table-wrapper">
 <table>
     <tr>
         <th>SL</th>
@@ -41,7 +41,7 @@
     </tr>
     {% endfor %}
 </table>
-
+</div>
 <br>
 <a class="btn" href="/rope/{{ rope_id }}/inspections/add-new">Add Inspection</a>
 <a class="btn" href="/rope/{{ rope_id }}">Back to Overview</a>
