@@ -57,45 +57,62 @@ def compute_status(rope_id, purchase_date):
     conn = get_connection()
     cur = conn.cursor()
 
-    # Last inspection
+    # Get latest inspection
     cur.execute("""
-        SELECT inspection_date FROM inspection_logs
+        SELECT inspection_date, verdict
+        FROM inspection_logs
         WHERE rope_id = %s
         ORDER BY inspection_date DESC
         LIMIT 1
     """, (rope_id,))
-    inspection_row = cur.fetchone()
 
-    if inspection_row:
-        base_date = inspection_row[0]
+    inspection = cur.fetchone()
+
+    if inspection:
+        base_date = inspection[0]
+        verdict = inspection[1]
     else:
         base_date = purchase_date
+        verdict = None
 
-    next_due = base_date + timedelta(days=365)
+    # If last inspection failed → RETIRED permanently
+    if verdict == "fail":
+        cur.close()
+        conn.close()
+        return "RETIRED"
 
     # Count falls since base_date
     cur.execute("""
-        SELECT fall_type FROM fall_logs
-        WHERE rope_id = %s AND fall_date >= %s
+        SELECT fall_type
+        FROM fall_logs
+        WHERE rope_id = %s
+        AND fall_date >= %s
     """, (rope_id, base_date))
 
     falls = cur.fetchall()
-    cur.close()
-    conn.close()
 
     major = sum(1 for f in falls if f[0] == 'major')
     minor = sum(1 for f in falls if f[0] == 'minor')
 
     today = datetime.today().date()
 
-    if major >= 1:
-        return "DAMAGED"
-    elif minor >= 2:
-        return "DAMAGED"
-    elif today > next_due:
+    # Check fall rules
+    if major >= 1 or minor >= 3:
+        cur.close()
+        conn.close()
         return "INSPECTION DUE"
-    else:
-        return "ACTIVE"
+
+    # Check 6 month rule
+    next_due = base_date + timedelta(days=180)
+
+    if today >= next_due:
+        cur.close()
+        conn.close()
+        return "INSPECTION DUE"
+
+    cur.close()
+    conn.close()
+    return "ACTIVE"
 
 
 # ---------------- LANDING PAGE ----------------
