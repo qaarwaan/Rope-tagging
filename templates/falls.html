@@ -5,7 +5,7 @@
 {% block content %}
 
 <h2>Fall Records - {{ rope_id }}</h2>
-
+<div class="table-wrapper">
 <table>
     <tr>
         <th>SL</th>
@@ -35,7 +35,7 @@
     </tr>
     {% endfor %}
 </table>
-
+</div>
 <br>
 <a class="btn" href="/rope/{{ rope_id }}/falls/add-new">Add Fall Record</a>
 <a class="btn" href="/rope/{{ rope_id }}">Back to Overview</a>
