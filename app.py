@@ -274,10 +274,10 @@ def fall_list(rope_id):
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT fall_date, fall_type, comment
+        SELECT fall_date, fall_time, recorded_by, fall_type, comment, image_url
         FROM fall_logs
         WHERE rope_id = %s
-        ORDER BY fall_date DESC
+        ORDER BY fall_date ASC, fall_time ASC
     """, (rope_id,))
 
     rows = cur.fetchall()
