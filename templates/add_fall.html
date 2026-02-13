@@ -6,20 +6,31 @@
 
 <h2>Add Fall Record - {{ rope_id }}</h2>
 
-<form method="POST">
-    <label>Date:</label><br>
+<form method="POST" enctype="multipart/form-data">
+
+    Date:
     <input type="date" name="fall_date" required><br><br>
 
-    <label>Type:</label><br>
+    Time:
+    <input type="time" name="fall_time" required><br><br>
+
+    Recorded By:
+    <input type="text" name="recorded_by" required><br><br>
+
+    Type:
     <select name="fall_type">
         <option value="major">Major</option>
         <option value="minor">Minor</option>
     </select><br><br>
 
-    <label>Comment:</label><br>
+    Comment:
     <input type="text" name="comment"><br><br>
 
-    <button class="btn" type="submit">Submit</button>
+    Picture:
+    <input type="file" name="picture" accept="image/*"><br><br>
+
+    <button type="submit">Submit</button>
+
 </form>
 
 <br>
