@@ -8,13 +8,36 @@
 
 <table>
     <tr>
+        <th>SL</th>
         <th>Date</th>
-        <th>Comment</th>
+        <th>Inspected By</th>
+        <th>Verdict</th>
+        <th>Comments</th>
+        <th>Image</th>
     </tr>
+
     {% for inspection in inspections %}
     <tr>
+        <td>{{ loop.index }}</td>
         <td>{{ inspection.inspection_date }}</td>
+        <td>{{ inspection.inspected_by }}</td>
+        <td>
+            {% if inspection.verdict == "pass" %}
+                <span style="color:green;font-weight:bold;">PASS</span>
+            {% else %}
+                <span style="color:red;font-weight:bold;">FAIL</span>
+            {% endif %}
+        </td>
         <td>{{ inspection.comment or "" }}</td>
+        <td>
+            {% if inspection.image_url %}
+                <a href="{{ inspection.image_url }}" target="_blank">
+                    <img src="{{ inspection.image_url }}" width="60">
+                </a>
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </table>
