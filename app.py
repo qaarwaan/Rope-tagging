@@ -307,28 +307,61 @@ def fall_list(rope_id):
 def add_fall(rope_id):
     if request.method == "POST":
         fall_date_str = request.form["fall_date"]
+        fall_time_str = request.form["fall_time"]
+        recorded_by = request.form["recorded_by"]
         fall_type = request.form["fall_type"]
         comment = request.form["comment"]
 
         fall_date = datetime.strptime(fall_date_str, "%Y-%m-%d").date()
         today = datetime.today().date()
 
+        # Prevent future date
         if fall_date > today:
-            return "Fall date cannot be in the future", 400
+            return "<h3>Error: Fall date cannot be in the future.</h3><a href=''>Go Back</a>"
+
+        # Handle image upload
+        image_url = None
+        file = request.files.get("picture")
+
+        if file and file.filename != "":
+            file_ext = file.filename.split(".")[-1]
+            file_name = f"{rope_id}_{datetime.now().timestamp()}.{file_ext}"
+
+            file_bytes = file.read()
+
+            supabase.storage.from_("rope-media").upload(
+                file_name,
+                file_bytes,
+                {"content-type": file.content_type}
+            )
+
+            image_url = supabase.storage.from_("rope-media").get_public_url(file_name)
 
         conn = get_connection()
         cur = conn.cursor()
 
         cur.execute("""
-            INSERT INTO fall_logs (rope_id, fall_date, fall_type, comment)
-            VALUES (%s, %s, %s, %s)
-        """, (rope_id, fall_date, fall_type, comment))
+            INSERT INTO fall_logs 
+            (rope_id, fall_date, fall_time, recorded_by, fall_type, comment, image_url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            rope_id,
+            fall_date,
+            fall_time_str,
+            recorded_by,
+            fall_type,
+            comment,
+            image_url
+        ))
 
         conn.commit()
         cur.close()
         conn.close()
 
-        return redirect(f"/rope/{rope_id}/falls")
+        return f"""
+        <h3>Fall Record Added</h3>
+        <a href="/rope/{rope_id}/falls">Back to Fall Records</a>
+        """
 
     return render_template("add_fall.html", rope_id=rope_id)
 
